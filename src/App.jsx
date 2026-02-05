@@ -45,7 +45,7 @@ const getProducts = async () => {
       const { token,expired } = response.data;
       document.cookie = `hexToken=${token};expires=${new Date(expired)};`;
       axios.defaults.headers.common['Authorization'] = token;
-      getProducts();
+      await getProducts();
       setIsAuth(true);
     } catch (error) {
       console.error("登入失敗:", error);
@@ -60,12 +60,20 @@ const getProducts = async () => {
         .split("; ")
         .find((row) => row.startsWith("hexToken="))
         ?.split("=")[1];
+        if (!token) {
+      console.error("沒有找到 token，請重新登入");
+      setIsAuth(false);
+      return;
+    }
+
         axios.defaults.headers.common['Authorization'] = token;
-      const response = await axios.post(
+      await axios.post(
         `${API_BASE}/api/user/check` );
+        setIsAuth(true);
           } catch (error) {
      
       console.error("登入失敗:", error);
+       setIsAuth(false);
     }
   }
 
@@ -88,7 +96,7 @@ const getProducts = async () => {
               required/>
               <label htmlFor="password">Password</label>
             </div>
-            <button type='submit' className='btn btn-info w-100 mt-2 p-3' onClick={onSubmit}>登入</button>
+            <button type='submit' className='btn btn-info w-100 mt-2 p-3' >登入</button>
           </form>
         </div>
       ) : (
